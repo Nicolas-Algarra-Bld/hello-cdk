@@ -1,9 +1,12 @@
 from aws_cdk import (
   Stack,
+  RemovalPolicy,
   aws_lambda as _lambda, # Import the Lambda module
   CfnOutput
 )
 from constructs import Construct
+import aws_cdk.aws_s3 as s3
+import aws_cdk.aws_s3_deployment as s3deploy
 
 class HelloCdkStack(Stack):
 
@@ -25,6 +28,25 @@ class HelloCdkStack(Stack):
         };
         """
       ),
+    )
+
+    # Crear el bucket S3
+    bucket = s3.Bucket(
+        self,
+        "MiBucketCDK",
+        versioned=False,
+        removal_policy=RemovalPolicy.DESTROY,
+        auto_delete_objects=True,  # solo para pruebas
+    )
+
+    # Subir archivo(s) locales al bucket
+    s3deploy.BucketDeployment(
+        self,
+        "SubirArchivoTexto",
+        destination_bucket=bucket,
+        sources=[
+            s3deploy.Source.asset("assets")
+        ],
     )
 
     # Define the Lambda function URL resource
